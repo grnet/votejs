@@ -1,0 +1,120 @@
+{
+  "name": "votejs",
+  "version": "0.0.0",
+  "description": "",
+  "keywords": [],
+  "main": "dist/votejs.umd.js",
+  "module": "dist/votejs.es5.js",
+  "typings": "dist/types/votejs.d.ts",
+  "files": [
+    "dist"
+  ],
+  "author": "Kostas Papadimitriou <kpap@grnet.gr>",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "scripts": {
+    "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "prebuild": "rimraf dist && ts-node tools/make-verificatum.ts",
+    "pretest": "ts-node tools/make-verificatum.ts",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
+    "start": "rollup -c rollup.config.ts -w",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:prod": "yarn run lint && yarn run test -- --coverage --no-cache",
+    "report-coverage": "cat ./coverage/lcov.info | coveralls",
+    "commit": "git-cz",
+    "semantic-release": "semantic-release",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "{src,test}/**/*.ts": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    }
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "ts-jest"
+    },
+    "testEnvironment": "node",
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts)$",
+    "moduleNameMapper": {
+      "verificatum/(.*)": "<rootDir>/vendor/verificatum/$1",
+      "verificatum": "<rootDir>/vendor/verificatum",
+      "votejs/(.*)": "<rootDir>/src/votejs/$1",
+      "votejs": "<rootDir>/src/votejs"
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/",
+      "/vendor/",
+      "/tools/",
+      "rollup.config.ts",
+      "src/votejs.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 95,
+        "lines": 95,
+        "statements": 95
+      }
+    },
+    "collectCoverage": true
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^7.0.0",
+    "@commitlint/config-conventional": "^7.0.1",
+    "@types/jest": "^23.3.1",
+    "@types/mkdirp": "^0.5.2",
+    "@types/request": "^2.47.1",
+    "@types/request-promise-native": "^1.0.15",
+    "commitizen": "^2.10.1",
+    "coveralls": "^3.0.2",
+    "jest": "^23.5.0",
+    "lint-staged": "^7.2.2",
+    "lodash.camelcase": "^4.3.0",
+    "mkdirp": "^0.5.1",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.5",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.64.1",
+    "rollup-plugin-commonjs": "^9.1.5",
+    "rollup-plugin-includepaths": "^0.2.3",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-typescript2": "^0.16.1",
+    "semantic-release": "^15.9.9",
+    "ts-jest": "^23.1.4",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
+    "tslint-config-standard": "^7.1.0",
+    "typedoc": "^0.12.0",
+    "typescript": "^3.0.1"
+  }
+}
