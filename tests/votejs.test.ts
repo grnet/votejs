@@ -1,7 +1,9 @@
 import "jest";
-import { LargeInteger } from "verificatum/arithm"
+import { LargeInteger, PPGroupElement } from "verificatum/arithm"
 import { arithm } from "votejs/util";
 import { GammaEncoder } from "votejs/encoders/gamma";
+import { ZEUS_PARAMS } from "./common";
+import { VerificatumModPCrypto, ModParams } from "votejs/systems/verif";
 
 describe("utils tests", () => {
   it("votejs arithm utils", () => {
@@ -35,5 +37,25 @@ describe("gamma encoding", () => {
     }
     encoded = encoding.encode(large, 300);
     expect(encoded.toHexString()).toEqual("131cf3263a45182a2186f53a6beae088cc27ac4919969aaedf466760b2c30850705dff5d87f5e9324901382a6b3fd5a61fecfe506f5bbd117ad2c62ec5f555c24c2839038291ebfc1316817973c7ebe47ef1e252dd4d8dcd5ee8d6deec17671ad4db08");
+    
+    encoded = encoding.encode([], 0);
+    expect(arithm.toNumber(encoded)).toEqual(0);
+
+    // test cached
+    encoded = encoding.encode([1, 2], 2);
+    expect(arithm.toNumber(encoded)).toEqual(6);
+    encoded = encoding.encode([150, 10, 125], 300);
+    expect(arithm.toNumber(encoded)).toEqual(13458406);
+  })
+})
+
+describe("elgamal", () => {
+  it("should encode choices to integers", () => {
+    let { modulus, order, generator } = ZEUS_PARAMS;
+    let params = new ModParams(modulus, order, generator);
+    let vrf = new VerificatumModPCrypto(params);
+    let keypair = vrf.generateKeypair();
+    expect(keypair[0].values[0].value).toBeInstanceOf(LargeInteger);
+    expect(keypair[1].value).toBeInstanceOf(LargeInteger);
   })
 })
