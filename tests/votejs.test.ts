@@ -1,6 +1,6 @@
 import "jest";
 import {LargeInteger, ECqPGroup} from "verificatum/arithm";
-import { arithm } from "votejs/util";
+import { arithm, convert } from "votejs/util";
 import { GammaEncoder } from "votejs/encoders/gamma";
 import { ZEUS_PARAMS } from "./common";
 import {VerificatumModPCrypto, ModParams, VerificatumECqPCrypto} from "votejs/systems/verif";
@@ -93,5 +93,20 @@ describe("votejs encryption decryption test ECqPGroup", () => {
         const cipher = vrf.encrypt(keypair[0], m);
         const decryptedM = vrf.decrypt(keypair[1], cipher);
         expect(decryptedM.equals(m)).toBeTruthy();
+    })
+})
+
+describe("util convert methods test ModPGroup", () => {
+    it("keys should be equals", () => {
+        let { modulus, order, generator } = ZEUS_PARAMS;
+        let params = new ModParams(modulus, order, generator);
+        let vrf = new VerificatumModPCrypto(params);
+        let keypair = vrf.generateKeypair();
+        let pkHex = convert.pkToHex(keypair[0]);
+        let skHex = convert.skToHex(keypair[1]);
+        let pk = convert.pkFromHex(pkHex, vrf.group);
+        let sk = convert.skFromHex(skHex, vrf.group);
+        expect(pk).toEqual(keypair[0]);
+        expect(sk).toEqual(keypair[1]);
     })
 })

@@ -25,6 +25,7 @@ export class LargeInteger {
     modPow(exponent:LargeInteger, modulus:LargeInteger): LargeInteger
     square(): LargeInteger
     divQR(divisor:LargeInteger): [LargeInteger, LargeInteger]
+    toByteArray(byteSize?: number): string[] // TODO make it generic
 }
 
 export interface GroupElement<T> {
@@ -34,9 +35,13 @@ export interface GroupElement<T> {
 }
 
 
-declare class PGroup<E> {
+declare class PGroup<G, E> {
+    constructor(pRing: PRing)
     pRing: PField
     randomElement(source:RandomSource, dist:number): E
+    getElementOrder(): LargeInteger
+    getg(): LargeInteger
+    toElement(param: any): PGroupElement<G, E> // TODO Byte tree representation of an element, or a raw byte array.
 }
 
 declare class PGroupElement<G, V> {
@@ -47,18 +52,23 @@ declare class PGroupElement<G, V> {
 
 export class PRing {
     randomElement(source:RandomSource, dist:number): PRingElement<PRing>
+    toElement(param: any): PFieldElement // TODO Byte tree representation of an element, or a raw byte array.
 }
 export class PRingElement<R> {
     pRing: R
     value: LargeInteger
 }
 
-export class PPGroup<E> extends PGroup<E> {}
+export class PPGroup<G, E> extends PGroup<G, E> {
+    // TODO replace any (https://www.verificatum.org/api-vjsc/vjsc-1.1.1.js.html#line8126)
+    constructor(value: any, width?: any)
+    prod(value: any): PPGroupElement<G, E>
+}
 export class PPGroupElement<G, E> extends PGroupElement<G, E> {
     values: [E, E]
 }
 
-export class ECqPGroup extends PGroup<ECqPGroupElement> {
+export class ECqPGroup extends PGroup<ECqPGroup, ECqPGroupElement> {
     // TODO make modulus generic
     constructor(modulus: any, a?: number, b?: number, gx?: number, gy?: number, n?: number)
 }
@@ -67,7 +77,7 @@ export class ECqPGroupElement extends PGroupElement<ECqPGroup, ECP> {
     constructor(pGroup: ECqPGroup, x: any, y?: LargeInteger, z?: LargeInteger)
 }
 
-export class ModPGroup extends PGroup<ModPGroupElement> {
+export class ModPGroup extends PGroup<ModPGroup, ModPGroupElement> {
     constructor(modulus:LargeInteger, order:LargeInteger, group:LargeInteger, encoding:number)
 }
 export class ModPGroupElement extends PGroupElement<ModPGroup, LargeInteger> {}
@@ -75,5 +85,7 @@ export class ModPGroupElement extends PGroupElement<ModPGroup, LargeInteger> {}
 export class PPRing extends PRing {}
 export class PPRingElement extends PRingElement<PPRing> {}
 
-export class PField extends PRing {}
+export class PField extends PRing {
+    constructor(order?: string|number|LargeInteger)
+}
 export class PFieldElement extends PRingElement<PField> {}
