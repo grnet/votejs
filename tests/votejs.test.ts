@@ -83,3 +83,15 @@ describe("votejs encryption decryption test ModPGroup", () => {
         expect(decryptedM.equals(m)).toBeTruthy();
     })
 })
+
+describe("votejs encryption decryption test ECqPGroup", () => {
+    it("message should be equal to decrypted message", () => {
+        let ecGroup = new ECqPGroup("P-224");
+        let vrf = new VerificatumECqPCrypto(ecGroup);
+        let keypair = vrf.generateKeypair();
+        const m = vrf.group.randomElement(vrf.device, vrf.statDist);
+        const cipher = vrf.encrypt(keypair[0], m);
+        const decryptedM = vrf.decrypt(keypair[1], cipher);
+        expect(decryptedM.equals(m)).toBeTruthy();
+    })
+})

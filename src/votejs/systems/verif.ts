@@ -96,7 +96,7 @@ export class VerificatumECqPCrypto
     }
 
     encrypt(
-        pk: PublicKey<ModPGroup, ModPGroupElement>,
+        pk: PublicKey<ECqPGroup, ECqPGroupElement>,
         message: ECqPGroupElement
     ): Ciphertext<ECqPGroupElement> {
         const randomElement = this.group.pRing.randomElement(this.device, this.statDist);
