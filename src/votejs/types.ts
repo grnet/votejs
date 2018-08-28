@@ -3,23 +3,14 @@ import {LargeInteger, PPGroupElement, PFieldElement, PGroupElement} from 'verifi
 
 export type Choice = Array<number>
 
-/**
- * Represents a ciphertext composed of a tuple of group elements
- * @template E (ModPGroupElement | ECqPGroupElement)
- */
-export interface Ciphertext<E> {
-  a: E
-  b: E
-}
-
 export interface ChoiceEncoder {
   encode(choices: Choice, nrOptions?: number): LargeInteger
 }
 
 export interface CryptoSystem<G, E> {
-  prove(cipher: Ciphertext<E>, random: Hex): boolean
-  decrypt(key: PrivateKey, cipher: Ciphertext<E>): E
-  encrypt(key: PublicKey<G, E>, message: E): Ciphertext<E>
+  prove(cipher: Ciphertext<G, E>, random: Hex): boolean
+  decrypt(key: PrivateKey, cipher: Ciphertext<G, E>): E
+  encrypt(key: PublicKey<G, E>, message: E): Ciphertext<G, E>
 }
 
 export interface Scheme {
@@ -30,3 +21,4 @@ export interface Scheme {
 export type PrivateKey = PFieldElement
 export type PublicKey<G, E> = PPGroupElement<G, E>
 export type KeyPair<G, E> = [PPGroupElement<G, E>, PFieldElement]
+export type Ciphertext<G, E> = PPGroupElement<G, E>

@@ -1,5 +1,5 @@
 import "jest";
-import {LargeInteger, ECqPGroup} from "verificatum/arithm";
+import {LargeInteger, ECqPGroup, ModPGroup} from "verificatum/arithm";
 import { arithm, convert } from "votejs/util";
 import { GammaEncoder } from "votejs/encoders/gamma";
 import { ZEUS_PARAMS } from "./common";
@@ -108,5 +108,19 @@ describe("util convert methods test ModPGroup", () => {
         let sk = convert.skFromHex(skHex, vrf.group);
         expect(pk).toEqual(keypair[0]);
         expect(sk).toEqual(keypair[1]);
+    })
+})
+
+describe("util cipher serializer -- deserialize test ModPGroup", () => {
+    it("ciphers must be equals", () => {
+        let { modulus, order, generator } = ZEUS_PARAMS;
+        let params = new ModParams(modulus, order, generator);
+        let vrf = new VerificatumModPCrypto(params);
+        let keypair = vrf.generateKeypair();
+        let m = vrf.group.randomElement(vrf.device, vrf.statDist);
+        let cipher = vrf.encrypt(keypair[0], m);
+        let serializedCipher = convert.serializeCipher(cipher);
+        let deserializedCipher = convert.deserializeCipher(vrf.group, serializedCipher);
+        expect(cipher.equals(deserializedCipher)).toBeTruthy();
     })
 })

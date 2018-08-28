@@ -17,6 +17,6 @@ export interface CryptoSystem {}
 export class ElGamal<G extends PGroup<G, E>, V, E extends PGroupElement<G, V>> implements CryptoSystem  {
     constructor(standard:boolean, group: G, source:RandomSource, dist:number)
     gen(): KeyPair<G, E>
-    encrypt(publicKey: PPGroupElement<G, E>, message: E, random: PFieldElement): Ciphertext<E>
-    decrypt(privateKey: PFieldElement, ciphertext: Ciphertext<E>): E
+    encrypt(publicKey: PPGroupElement<G, E>, message: E, random: PFieldElement): Ciphertext<G, E>
+    decrypt(privateKey: PFieldElement, ciphertext: Ciphertext<G, E>): E
 }

@@ -1,5 +1,5 @@
 import { CryptoSystem, Ciphertext, PublicKey, PrivateKey } from 'votejs/types'
-import { KeyPair, Cipher } from 'votejs/crypto'
+import { KeyPair } from 'votejs/crypto'
 import {
     ModPGroup,
     LargeInteger,
@@ -48,7 +48,7 @@ export class VerificatumModPCrypto
     this.elgamal = new ElGamal(true, this.group, this.source, 1);
   }
 
-  prove(cipher: Ciphertext<ModPGroupElement>, random: Hex) {
+  prove(cipher: Ciphertext<ModPGroup, ModPGroupElement>, random: Hex) {
     return true
   }
 
@@ -59,12 +59,12 @@ export class VerificatumModPCrypto
   encrypt(
     pk: PublicKey<ModPGroup, ModPGroupElement>,
     message: ModPGroupElement
-  ): Ciphertext<ModPGroupElement> {
+  ): Ciphertext<ModPGroup, ModPGroupElement> {
     const randomElement = this.group.pRing.randomElement(this.device, this.statDist);
     return this.elgamal.encrypt(pk, message, randomElement);
   }
 
-  decrypt(sk: PrivateKey, cipher: Ciphertext<ModPGroupElement>): ModPGroupElement {
+  decrypt(sk: PrivateKey, cipher: Ciphertext<ModPGroup, ModPGroupElement>): ModPGroupElement {
     return this.elgamal.decrypt(sk, cipher);
   }
 }
@@ -87,7 +87,7 @@ export class VerificatumECqPCrypto
         this.elgamal = new ElGamal(true, this.group, this.source, 1);
     }
 
-    prove(cipher: Ciphertext<ECqPGroupElement>, random: Hex) {
+    prove(cipher: Ciphertext<ECqPGroup, ECqPGroupElement>, random: Hex) {
         return true
     }
 
@@ -98,12 +98,12 @@ export class VerificatumECqPCrypto
     encrypt(
         pk: PublicKey<ECqPGroup, ECqPGroupElement>,
         message: ECqPGroupElement
-    ): Ciphertext<ECqPGroupElement> {
+    ): Ciphertext<ECqPGroup, ECqPGroupElement> {
         const randomElement = this.group.pRing.randomElement(this.device, this.statDist);
         return this.elgamal.encrypt(pk, message, randomElement);
     }
 
-    decrypt(sk: PrivateKey, cipher: Ciphertext<ECqPGroupElement>): ECqPGroupElement {
+    decrypt(sk: PrivateKey, cipher: Ciphertext<ECqPGroup, ECqPGroupElement>): ECqPGroupElement {
         return this.elgamal.decrypt(sk, cipher);
     }
 }
