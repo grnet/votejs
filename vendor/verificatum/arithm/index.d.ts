@@ -35,20 +35,23 @@ export interface GroupElement<T> {
 
 
 declare class PGroup<E> {
+    pRing: PField
     randomElement(source:RandomSource, dist:number): E
 }
 
 declare class PGroupElement<G, V> {
     pGroup: G
     value: V
+    equals(other: PGroupElement<G, V>): boolean
 }
 
-export class PRing {}
+export class PRing {
+    randomElement(source:RandomSource, dist:number): PRingElement<PRing>
+}
 export class PRingElement<R> {
     pRing: R
     value: LargeInteger
 }
-
 
 export class PPGroup<E> extends PGroup<E> {}
 export class PPGroupElement<G, E> extends PGroupElement<G, E> {

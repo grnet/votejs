@@ -1,6 +1,6 @@
 import { ByteArray } from "verificatum/types";
-import { PGroupElement, PGroup} from "verificatum/arithm";
-import {KeyPair} from 'votejs/types';
+import {PGroupElement, PGroup, PFieldElement, PPGroupElement} from "verificatum/arithm";
+import {Ciphertext, KeyPair} from 'votejs/types';
 
 export class RandomSource {
     getBytes(len: number):ByteArray
@@ -17,4 +17,6 @@ export interface CryptoSystem {}
 export class ElGamal<G extends PGroup<E>, V, E extends PGroupElement<G, V>> implements CryptoSystem  {
     constructor(standard:boolean, group: G, source:RandomSource, dist:number)
     gen(): KeyPair<G, E>
+    encrypt(publicKey: PPGroupElement<G, E>, message: E, random: PFieldElement): Ciphertext<E>
+    decrypt(privateKey: PFieldElement, ciphertext: Ciphertext<E>): E
 }

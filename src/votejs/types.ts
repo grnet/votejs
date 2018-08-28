@@ -1,11 +1,15 @@
 import { Hex } from 'verificatum/types'
-import { LargeInteger, PPGroupElement, PFieldElement } from 'verificatum/arithm'
+import {LargeInteger, PPGroupElement, PFieldElement, PGroupElement} from 'verificatum/arithm'
 
 export type Choice = Array<number>
 
-export interface Ciphertext {
-  a: LargeInteger
-  b: LargeInteger
+/**
+ * Represents a ciphertext composed of a tuple of group elements
+ * @template E (ModPGroupElement | ECqPGroupElement)
+ */
+export interface Ciphertext<E> {
+  a: E
+  b: E
 }
 
 export interface ChoiceEncoder {
@@ -13,9 +17,9 @@ export interface ChoiceEncoder {
 }
 
 export interface CryptoSystem<G, E> {
-  prove(cipher: Ciphertext, random: Hex): boolean
-  decrypt(key: PrivateKey<G, E>, cipher: Ciphertext): string
-  encrypt(key: PublicKey<G, E>, message: string): Ciphertext
+  prove(cipher: Ciphertext<E>, random: Hex): boolean
+  decrypt(key: PrivateKey, cipher: Ciphertext<E>): E
+  encrypt(key: PublicKey<G, E>, message: E): Ciphertext<E>
 }
 
 export interface Scheme {
@@ -23,6 +27,6 @@ export interface Scheme {
   encoder: ChoiceEncoder
 }
 
-export type PrivateKey<G, E> = PPGroupElement<G, E>
-export type PublicKey<G, E> = PFieldElement
+export type PrivateKey = PFieldElement
+export type PublicKey<G, E> = PPGroupElement<G, E>
 export type KeyPair<G, E> = [PPGroupElement<G, E>, PFieldElement]

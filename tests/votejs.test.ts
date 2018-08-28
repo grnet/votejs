@@ -70,3 +70,16 @@ describe("elgamal elliptic curves", () => {
         expect(keypair[1].value).toBeInstanceOf(LargeInteger);
     })
 })
+
+describe("votejs encryption decryption test ModPGroup", () => {
+    it("message should be equal to decrypted message", () => {
+        let { modulus, order, generator } = ZEUS_PARAMS;
+        let params = new ModParams(modulus, order, generator);
+        let vrf = new VerificatumModPCrypto(params);
+        let keypair = vrf.generateKeypair();
+        const m = vrf.group.randomElement(vrf.device, vrf.statDist);
+        const cipher = vrf.encrypt(keypair[0], m);
+        const decryptedM = vrf.decrypt(keypair[1], cipher);
+        expect(decryptedM.equals(m)).toBeTruthy();
+    })
+})

@@ -25,27 +25,30 @@ export class ModParams {
 
 export class VerificatumModPCrypto
   implements CryptoSystem<ModPGroup, ModPGroupElement> {
-  params: ModParams
-  group: ModPGroup
-  elgamal: ElGamal<ModPGroup, LargeInteger, ModPGroupElement>
-  source: SHA256PRG
+  params: ModParams;
+  group: ModPGroup;
+  elgamal: ElGamal<ModPGroup, LargeInteger, ModPGroupElement>;
+  source: SHA256PRG;
+  statDist: number;
+  device: RandomDevice;
 
   constructor(params: ModParams) {
-    this.params = params
+    this.params = params;
     this.group = new ModPGroup(
       params.modulus,
       params.order,
       params.generator,
       1
     )
-    let device = new RandomDevice()
-    let seed = device.getBytes(SHA256PRG.seedLength)
-    this.source = new SHA256PRG()
-    this.source.setSeed(seed)
-    this.elgamal = new ElGamal(true, this.group, this.source, 1)
+    this.statDist = 50;
+    this.device = new RandomDevice();  // random source
+    let seed = this.device.getBytes(SHA256PRG.seedLength);
+    this.source = new SHA256PRG(); // ran
+    this.source.setSeed(seed);
+    this.elgamal = new ElGamal(true, this.group, this.source, 1);
   }
 
-  prove(cipher: Ciphertext, random: Hex) {
+  prove(cipher: Ciphertext<ModPGroupElement>, random: Hex) {
     return true
   }
 
@@ -54,14 +57,15 @@ export class VerificatumModPCrypto
   }
 
   encrypt(
-    key: PublicKey<ModPGroup, ModPGroupElement>,
-    message: string
-  ): Ciphertext {
-    return new Cipher(new LargeInteger('ff'), new LargeInteger('ff'))
+    pk: PublicKey<ModPGroup, ModPGroupElement>,
+    message: ModPGroupElement
+  ): Ciphertext<ModPGroupElement> {
+    const randomElement = this.group.pRing.randomElement(this.device, this.statDist);
+    return this.elgamal.encrypt(pk, message, randomElement);
   }
 
-  decrypt(priv: PrivateKey<ModPGroup, ModPGroupElement>, cipher: Ciphertext) {
-    return 'message'
+  decrypt(sk: PrivateKey, cipher: Ciphertext<ModPGroupElement>): ModPGroupElement {
+    return this.elgamal.decrypt(sk, cipher);
   }
 }
 
@@ -70,17 +74,20 @@ export class VerificatumECqPCrypto
     group: ECqPGroup;
     elgamal: ElGamal<ECqPGroup, ECP, ECqPGroupElement>;
     source: SHA256PRG;
+    statDist: number;
+    device: RandomDevice;
 
     constructor(group: ECqPGroup) {
         this.group = group;
-        let device = new RandomDevice();
-        let seed = device.getBytes(SHA256PRG.seedLength);
+        this.statDist = 50;
+        this.device = new RandomDevice();
+        let seed = this.device.getBytes(SHA256PRG.seedLength);
         this.source = new SHA256PRG();
         this.source.setSeed(seed);
         this.elgamal = new ElGamal(true, this.group, this.source, 1);
     }
 
-    prove(cipher: Ciphertext, random: Hex) {
+    prove(cipher: Ciphertext<ECqPGroupElement>, random: Hex) {
         return true
     }
 
@@ -89,13 +96,14 @@ export class VerificatumECqPCrypto
     }
 
     encrypt(
-        key: PublicKey<ModPGroup, ModPGroupElement>,
-        message: string
-    ): Ciphertext {
-        return new Cipher(new LargeInteger('ff'), new LargeInteger('ff'))
+        pk: PublicKey<ModPGroup, ModPGroupElement>,
+        message: ECqPGroupElement
+    ): Ciphertext<ECqPGroupElement> {
+        const randomElement = this.group.pRing.randomElement(this.device, this.statDist);
+        return this.elgamal.encrypt(pk, message, randomElement);
     }
 
-    decrypt(priv: PrivateKey<ModPGroup, ModPGroupElement>, cipher: Ciphertext) {
-        return 'message'
+    decrypt(sk: PrivateKey, cipher: Ciphertext<ECqPGroupElement>): ECqPGroupElement {
+        return this.elgamal.decrypt(sk, cipher);
     }
 }
