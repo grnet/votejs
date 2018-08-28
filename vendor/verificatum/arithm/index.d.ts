@@ -1,6 +1,7 @@
 import { Hex, ByteArray } from "verificatum/types";
 import { RandomSource } from "verificatum/crypto";
 import { ECP } from "verificatum/arithm/ec";
+import {ByteTree} from '../eio/index';
 
 export class LargeInteger {
 
@@ -25,7 +26,7 @@ export class LargeInteger {
     modPow(exponent:LargeInteger, modulus:LargeInteger): LargeInteger
     square(): LargeInteger
     divQR(divisor:LargeInteger): [LargeInteger, LargeInteger]
-    toByteArray(byteSize?: number): string[] // TODO make it generic
+    toByteArray(byteSize?: number): number[]
 }
 
 export interface GroupElement<T> {
@@ -41,7 +42,7 @@ declare class PGroup<G, E> {
     randomElement(source:RandomSource, dist:number): E
     getElementOrder(): LargeInteger
     getg(): LargeInteger
-    toElement(param: any): PGroupElement<G, E> // TODO Byte tree representation of an element, or a raw byte array.
+    toElement(byteTree: ByteTree): PGroupElement<G, E>
 }
 
 declare class PGroupElement<G, V> {
@@ -52,7 +53,7 @@ declare class PGroupElement<G, V> {
 
 export class PRing {
     randomElement(source:RandomSource, dist:number): PRingElement<PRing>
-    toElement(param: any): PFieldElement // TODO Byte tree representation of an element, or a raw byte array.
+    toElement(byteTree: ByteArray): PRingElement<PRing>
 }
 export class PRingElement<R> {
     pRing: R
@@ -60,8 +61,7 @@ export class PRingElement<R> {
 }
 
 export class PPGroup<G, E> extends PGroup<G, E> {
-    // TODO replace any (https://www.verificatum.org/api-vjsc/vjsc-1.1.1.js.html#line8126)
-    constructor(value: any, width?: any)
+    constructor(value: PGroup<G, E>[]|PGroup<G, E>, width?: number)
     prod(value: any): PPGroupElement<G, E>
 }
 export class PPGroupElement<G, E> extends PGroupElement<G, E> {
@@ -69,12 +69,11 @@ export class PPGroupElement<G, E> extends PGroupElement<G, E> {
 }
 
 export class ECqPGroup extends PGroup<ECqPGroup, ECqPGroupElement> {
-    // TODO make modulus generic
-    constructor(modulus: any, a?: number, b?: number, gx?: number, gy?: number, n?: number)
+    constructor(modulus: string|LargeInteger, a?: LargeInteger, b?: LargeInteger,
+                gx?: LargeInteger, gy?: LargeInteger, n?: LargeInteger)
 }
 export class ECqPGroupElement extends PGroupElement<ECqPGroup, ECP> {
-    // TODO make x generic
-    constructor(pGroup: ECqPGroup, x: any, y?: LargeInteger, z?: LargeInteger)
+    constructor(pGroup: ECqPGroup, x: ECP|LargeInteger, y?: LargeInteger, z?: LargeInteger)
 }
 
 export class ModPGroup extends PGroup<ModPGroup, ModPGroupElement> {
