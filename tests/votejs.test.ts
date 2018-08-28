@@ -1,9 +1,10 @@
 import "jest";
-import { LargeInteger, PPGroupElement } from "verificatum/arithm"
+import {LargeInteger, ECqPGroup} from "verificatum/arithm";
 import { arithm } from "votejs/util";
 import { GammaEncoder } from "votejs/encoders/gamma";
 import { ZEUS_PARAMS } from "./common";
-import { VerificatumModPCrypto, ModParams } from "votejs/systems/verif";
+import {VerificatumModPCrypto, ModParams, VerificatumECqPCrypto} from "votejs/systems/verif";
+import {ECP} from 'verificatum/arithm/ec/index';
 
 describe("utils tests", () => {
   it("votejs arithm utils", () => {
@@ -50,7 +51,7 @@ describe("gamma encoding", () => {
 })
 
 describe("elgamal", () => {
-  it("should encode choices to integers", () => {
+  it("values should be integers", () => {
     let { modulus, order, generator } = ZEUS_PARAMS;
     let params = new ModParams(modulus, order, generator);
     let vrf = new VerificatumModPCrypto(params);
@@ -58,4 +59,14 @@ describe("elgamal", () => {
     expect(keypair[0].values[0].value).toBeInstanceOf(LargeInteger);
     expect(keypair[1].value).toBeInstanceOf(LargeInteger);
   })
+})
+
+describe("elgamal elliptic curves", () => {
+    it("values should be ECP", () => {
+        let ecGroup = new ECqPGroup("P-224");
+        let vrf = new VerificatumECqPCrypto(ecGroup);
+        let keypair = vrf.generateKeypair();
+        expect(keypair[0].values[0].value).toBeInstanceOf(ECP);
+        expect(keypair[1].value).toBeInstanceOf(LargeInteger);
+    })
 })

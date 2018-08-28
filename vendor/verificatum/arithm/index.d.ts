@@ -1,5 +1,6 @@
 import { Hex, ByteArray } from "verificatum/types";
 import { RandomSource } from "verificatum/crypto";
+import { ECP } from "verificatum/arithm/ec";
 
 export class LargeInteger {
 
@@ -37,9 +38,9 @@ declare class PGroup<E> {
     randomElement(source:RandomSource, dist:number): E
 }
 
-declare class PGroupElement<G> {
+declare class PGroupElement<G, V> {
     pGroup: G
-    value: LargeInteger
+    value: V
 }
 
 export class PRing {}
@@ -50,17 +51,23 @@ export class PRingElement<R> {
 
 
 export class PPGroup<E> extends PGroup<E> {}
-export class PPGroupElement<G, E> extends PGroupElement<G> {
+export class PPGroupElement<G, E> extends PGroupElement<G, E> {
     values: [E, E]
 }
 
-export class ECqPGroup extends PGroup<ECqPGroupElement> {}
-export class ECqPGroupElement extends PGroupElement<ECqPGroup> {}
+export class ECqPGroup extends PGroup<ECqPGroupElement> {
+    // TODO make modulus generic
+    constructor(modulus: any, a?: number, b?: number, gx?: number, gy?: number, n?: number)
+}
+export class ECqPGroupElement extends PGroupElement<ECqPGroup, ECP> {
+    // TODO make x generic
+    constructor(pGroup: ECqPGroup, x: any, y?: LargeInteger, z?: LargeInteger)
+}
 
 export class ModPGroup extends PGroup<ModPGroupElement> {
     constructor(modulus:LargeInteger, order:LargeInteger, group:LargeInteger, encoding:number)
 }
-export class ModPGroupElement extends PGroupElement<ModPGroup> {}
+export class ModPGroupElement extends PGroupElement<ModPGroup, LargeInteger> {}
 
 export class PPRing extends PRing {}
 export class PPRingElement extends PRingElement<PPRing> {}
