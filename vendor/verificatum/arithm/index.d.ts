@@ -15,6 +15,7 @@ export class LargeInteger {
 
     value: Array<number>
 
+    bitLength(): number
     cmp(num:LargeInteger): number
     toHexString(): string
     iszero(): boolean
@@ -27,6 +28,7 @@ export class LargeInteger {
     square(): LargeInteger
     divQR(divisor:LargeInteger): [LargeInteger, LargeInteger]
     toByteArray(byteSize?: number): number[]
+    legendre(modulus:LargeInteger): number
 }
 
 export interface GroupElement<T> {
@@ -37,17 +39,19 @@ export interface GroupElement<T> {
 
 
 declare class PGroup<G, E> {
+    modulus: LargeInteger
     constructor(pRing: PRing)
     pRing: PField
     randomElement(source:RandomSource, dist:number): E
     getElementOrder(): LargeInteger
     getg(): LargeInteger
-    toElement(byteTree: ByteTree): PGroupElement<G, E>
+    toElement(byteTree: ByteTree): E
+    encode(bytes:ByteArray, index:number, length: number): E
 }
 
 declare class PGroupElement<G, V> {
     pGroup: G
-    value: V
+    value: LargeInteger
     equals(other: PGroupElement<G, V>): boolean
 }
 
@@ -79,7 +83,7 @@ export class ECqPGroupElement extends PGroupElement<ECqPGroup, ECP> {
 export class ModPGroup extends PGroup<ModPGroup, ModPGroupElement> {
     constructor(modulus:LargeInteger, order:LargeInteger, group:LargeInteger, encoding:number)
 }
-export class ModPGroupElement extends PGroupElement<ModPGroup, LargeInteger> {}
+export class ModPGroupElement extends PPGroupElement<ModPGroup, LargeInteger> {}
 
 export class PPRing extends PRing {}
 export class PPRingElement extends PRingElement<PPRing> {}

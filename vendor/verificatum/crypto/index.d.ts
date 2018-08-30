@@ -1,5 +1,5 @@
 import { ByteArray } from "verificatum/types";
-import {PGroupElement, PGroup, PFieldElement, PPGroupElement} from "verificatum/arithm";
+import {PGroupElement, PGroup, PFieldElement, PPGroupElement, ModPGroup, LargeInteger, ModPGroupElement} from "verificatum/arithm";
 import {Ciphertext, KeyPair} from 'votejs/types';
 
 export class RandomSource {
@@ -20,3 +20,4 @@ export class ElGamal<G extends PGroup<G, E>, V, E extends PGroupElement<G, V>> i
     encrypt(publicKey: PPGroupElement<G, E>, message: E, random: PFieldElement): Ciphertext<G, E>
     decrypt(privateKey: PFieldElement, ciphertext: Ciphertext<G, E>): E
 }
+export type ModPElGamal = ElGamal<ModPGroup, LargeInteger, ModPGroupElement>
