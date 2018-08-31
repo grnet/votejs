@@ -38,7 +38,7 @@ describe("gamma encoding", () => {
     }
     encoded = encoding.encode(large, 300);
     expect(encoded.toHexString()).toEqual("131cf3263a45182a2186f53a6beae088cc27ac4919969aaedf466760b2c30850705dff5d87f5e9324901382a6b3fd5a61fecfe506f5bbd117ad2c62ec5f555c24c2839038291ebfc1316817973c7ebe47ef1e252dd4d8dcd5ee8d6deec17671ad4db08");
-    
+
     encoded = encoding.encode([], 0);
     expect(arithm.toNumber(encoded)).toEqual(0);
 
@@ -102,9 +102,23 @@ describe("util convert methods test ModPGroup", () => {
         let params = new ModParams(modulus, order, generator);
         let vrf = new VerificatumModPCrypto(params);
         let keypair = vrf.generateKeypair();
-        let pkHex = convert.pkToHex(keypair[0]);
+        let pkHex = convert.pkToHexModP(keypair[0]);
         let skHex = convert.skToHex(keypair[1]);
-        let pk = convert.pkFromHex(pkHex, vrf.group);
+        let pk = convert.pkFromHexModP(pkHex, vrf.group);
+        let sk = convert.skFromHex(skHex, vrf.group);
+        expect(pk).toEqual(keypair[0]);
+        expect(sk).toEqual(keypair[1]);
+    })
+})
+
+describe("util convert methods test ECqPGroup", () => {
+    it("keys should be equals", () => {
+        let ecGroup = new ECqPGroup("P-224");
+        let vrf = new VerificatumECqPCrypto(ecGroup);
+        let keypair = vrf.generateKeypair();
+        let pkHex = convert.pkToHexECqP(keypair[0]);
+        let skHex = convert.skToHex(keypair[1]);
+        let pk = convert.pkFromHexECqP(pkHex, vrf.group);
         let sk = convert.skFromHex(skHex, vrf.group);
         expect(pk).toEqual(keypair[0]);
         expect(sk).toEqual(keypair[1]);
@@ -119,8 +133,24 @@ describe("util cipher serializer -- deserialize test ModPGroup", () => {
         let keypair = vrf.generateKeypair();
         let m = vrf.group.randomElement(vrf.device, vrf.statDist);
         let cipher = vrf.encrypt(keypair[0], m);
-        let serializedCipher = convert.serializeCipher(cipher);
-        let deserializedCipher = convert.deserializeCipher(vrf.group, serializedCipher);
+        let serializedCipher = convert.serializeModPCipher(cipher);
+        let deserializedCipher =
+            convert.deserializeModPCipher(vrf.group, serializedCipher);
+        expect(cipher.equals(deserializedCipher)).toBeTruthy();
+    })
+})
+
+describe("util cipher serializer -- deserialize test ECqPGroup", () => {
+    it("ciphers must be equals", () => {
+        let ecGroup = new ECqPGroup("P-224");
+        let vrf = new VerificatumECqPCrypto(ecGroup);
+        let keypair = vrf.generateKeypair();
+        let m = vrf.group.randomElement(vrf.device, vrf.statDist);
+        let cipher = vrf.encrypt(keypair[0], m);
+        let curve = keypair[0].values[0].pGroup.curve;
+        let serializedCipher = convert.serializeECqPCipher(curve, cipher);
+        let deserializedCipher =
+            convert.deserializeECqPCipher(vrf.group, serializedCipher);
         expect(cipher.equals(deserializedCipher)).toBeTruthy();
     })
 })

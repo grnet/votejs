@@ -1,6 +1,6 @@
 import { Hex, ByteArray } from "verificatum/types";
 import { RandomSource } from "verificatum/crypto";
-import { ECP } from "verificatum/arithm/ec";
+import {EC, ECP} from "verificatum/arithm/ec";
 import {ByteTree} from '../eio/index';
 
 export class LargeInteger {
@@ -20,7 +20,7 @@ export class LargeInteger {
     toHexString(): string
     iszero(): boolean
     equals(other:LargeInteger): boolean
-    mul(other:LargeInteger): LargeInteger 
+    mul(other:LargeInteger): LargeInteger
     sub(other:LargeInteger): LargeInteger
     add(other:LargeInteger): LargeInteger
     modPow(exponent:LargeInteger, modulus:LargeInteger, naive: boolean): LargeInteger
@@ -39,6 +39,7 @@ export interface GroupElement<T> {
 
 
 declare class PGroup<G, E> {
+    modulusByteLength: number
     modulus: LargeInteger
     constructor(pRing: PRing)
     pRing: PField
@@ -51,7 +52,7 @@ declare class PGroup<G, E> {
 
 declare class PGroupElement<G, V> {
     pGroup: G
-    value: LargeInteger
+    value: V
     equals(other: PGroupElement<G, V>): boolean
 }
 
@@ -75,6 +76,7 @@ export class PPGroupElement<G, E> extends PGroupElement<G, E> {
 export class ECqPGroup extends PGroup<ECqPGroup, ECqPGroupElement> {
     constructor(modulus: string|LargeInteger, a?: LargeInteger, b?: LargeInteger,
                 gx?: LargeInteger, gy?: LargeInteger, n?: LargeInteger)
+    curve: EC
 }
 export class ECqPGroupElement extends PGroupElement<ECqPGroup, ECP> {
     constructor(pGroup: ECqPGroup, x: ECP|LargeInteger, y?: LargeInteger, z?: LargeInteger)
