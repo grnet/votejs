@@ -26,7 +26,9 @@ export class LargeInteger {
     modPow(exponent:LargeInteger, modulus:LargeInteger, naive: boolean): LargeInteger
     modPow(exponent:LargeInteger, modulus:LargeInteger): LargeInteger
     square(): LargeInteger
+    div(divisor:LargeInteger): LargeInteger
     divQR(divisor:LargeInteger): [LargeInteger, LargeInteger]
+    mod(modulus: LargeInteger): LargeInteger
     toByteArray(byteSize?: number): number[]
     legendre(modulus:LargeInteger): number
 }

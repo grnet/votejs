@@ -115,6 +115,42 @@ function get_offsets(n: LargeInteger): Array<LargeInteger> {
   return offsets
 }
 
+/**
+ * Return the index where to insert item x in list a, assuming a is sorted.
+ * https://github.com/python/cpython/blob/2.7/Lib/bisect.py#L24
+ *  
+ * @param a 
+ * @param x 
+ * @param lo
+ * @param hi
+ */
+function bisect_right(
+  a: Array<LargeInteger>, 
+  x: LargeInteger, 
+  lo=LargeInteger.ONE, 
+  hi=arithm.toLargeInteger(a.length)
+): LargeInteger {
+  while (arithm.lt(lo, hi)) {
+    let mid = (lo.add(hi))
+    mid = mid.div(LargeInteger.TWO);
+    // TODO: assert arithm.toNumber(mid) < largest js number
+    if (arithm.lt(x, a[arithm.toNumber(mid)])) {
+      hi = mid
+    } else {
+      lo = mid.add(LargeInteger.ONE)
+    }
+  }
+  return lo
+}
+
+/**
+ * Zeus gamma_encode method.
+ * https://github.com/grnet/zeus/blob/master/zeus/core.py#L1498
+ * 
+ * @param choices
+ * @param nrOptions
+ * @returns LargeInteger
+ */
 export class GammaEncoder implements ChoiceEncoder {
   encode(choices: Choice, nrOptions: number): LargeInteger {
     if (!nrOptions) {
@@ -138,5 +174,44 @@ export class GammaEncoder implements ChoiceEncoder {
       i += 1
     }
     return sumus
+  }
+
+  /**
+   * Zeus gamma_decode.
+   * https://github.com/grnet/zeus/blob/master/zeus/core.py#L1498
+   * 
+   * @param sumus 
+   * @returns Choice
+   */
+  decode(sumus: LargeInteger, nrOptions: number): Choice {
+    if (sumus.iszero()) {
+      return [];
+    }
+ 
+    let nrOptionsLI = arithm.toLargeInteger(nrOptions)
+
+    let offsets = get_offsets(nrOptionsLI)
+    let nr_choices = bisect_right(offsets, sumus)
+    let index = arithm.toNumber(nr_choices.sub(LargeInteger.ONE))
+    sumus = sumus.sub(offsets[index])
+
+    let choices:Choice = [];
+
+    let b = nrOptionsLI.sub(nr_choices)
+    let i = nr_choices
+    
+    while (1) {
+      // divmod
+      let factorBI = get_factor(b, i)
+      let choice = sumus.div(factorBI)
+      sumus = sumus.mod(factorBI)
+      let choiceN = arithm.toNumber(choice)
+      choices.push(choiceN)
+      if (arithm.lte(i, LargeInteger.ONE)) {
+        break 
+      }
+      i = i.sub(LargeInteger.ONE) 
+    }
+    return choices
   }
 }
