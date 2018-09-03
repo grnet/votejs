@@ -5,6 +5,7 @@ import { GammaEncoder } from "votejs/encoders/gamma";
 import { ZEUS_PARAMS } from "./common";
 import {VerificatumModPCrypto, ModParams, VerificatumECqPCrypto} from "votejs/systems/verif";
 import {ECP} from 'verificatum/arithm/ec/index';
+import { sha256 } from "votejs/hash";
 
 describe("utils tests", () => {
   it("votejs arithm utils", () => {
@@ -152,5 +153,13 @@ describe("util cipher serializer -- deserialize test ECqPGroup", () => {
         let deserializedCipher =
             convert.deserializeECqPCipher(vrf.group, serializedCipher);
         expect(cipher.equals(deserializedCipher)).toBeTruthy();
+    })
+})
+
+describe("sha256", () => {
+    it("returns expected results", () => {
+        let hash1 = sha256(["a", "b", "c"]);
+        expect(hash1).toEqual("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+        expect(sha256(["abc"])).toEqual(hash1);
     })
 })

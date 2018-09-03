@@ -1,18 +1,27 @@
 import {
-    ECqPGroup,
-    ECqPGroupElement,
-    LargeInteger,
-    ModPGroup,
-    ModPGroupElement,
-    PField,
-    PGroup,
-    PPGroup, PPGroupElement
+  ECqPGroup,
+  ECqPGroupElement,
+  LargeInteger,
+  ModPGroup,
+  ModPGroupElement,
+  PField,
+  PGroup,
+  PPGroup,
+  PPGroupElement
 } from 'verificatum/arithm'
 import { PrivateKey, PublicKey, Ciphertext } from 'votejs/types'
 import { Hex } from 'verificatum/types'
 import { ByteTree } from 'verificatum/eio'
-import {EC, ECP} from 'verificatum/arithm/ec';
-import {hex} from '../../vendor/verificatum/arithm/sli/index';
+import { EC, ECP } from 'verificatum/arithm/ec'
+import { hex } from '../../vendor/verificatum/arithm/sli/index'
+
+export function getGroupParams(group: ModPGroup) {
+  return {
+    order: group.getElementOrder(),
+    modulus: group.modulus,
+    generator: group.getg()
+  }
+}
 
 export const arithm = {
   gt(num1: LargeInteger, num2: LargeInteger) {
@@ -37,8 +46,8 @@ export const arithm = {
 
 export const convert = {
   getAffine(curve: EC, point: ECP) {
-    curve.affine(point);
-    return point;
+    curve.affine(point)
+    return point
   },
   toGroupElement(n: LargeInteger, group: ModPGroup) {
     return group.toElement(new ByteTree(n.toByteArray(257)))
@@ -51,22 +60,22 @@ export const convert = {
     return convert.toGroupElement(new LargeInteger(hex), group)
   },
   ecElementFromHex(hex: Array<Hex>, group: ECqPGroup): ECqPGroupElement {
-    let xLargeInt = new LargeInteger(hex[0]);
-    let yLargeInt = new LargeInteger(hex[1]);
-    let len = group.modulusByteLength;
-    let xByteTree = new ByteTree(xLargeInt.toByteArray(len));
-    let yByteTree = new ByteTree(yLargeInt.toByteArray(len));
-    let elemByteTree = new ByteTree([xByteTree, yByteTree]);
-    return group.toElement(elemByteTree);
+    let xLargeInt = new LargeInteger(hex[0])
+    let yLargeInt = new LargeInteger(hex[1])
+    let len = group.modulusByteLength
+    let xByteTree = new ByteTree(xLargeInt.toByteArray(len))
+    let yByteTree = new ByteTree(yLargeInt.toByteArray(len))
+    let elemByteTree = new ByteTree([xByteTree, yByteTree])
+    return group.toElement(elemByteTree)
   },
   ecPPElementFromHex(
     hex: Array<Hex>,
     group: ECqPGroup
   ): PPGroupElement<ECqPGroup, ECqPGroupElement> {
-    let groupElement = convert.ecElementFromHex(hex, group);
-    let gh = group.getg();
-    let elemPPGroup = new PPGroup<ECqPGroup, ECqPGroupElement>([group, group]);
-    return elemPPGroup.prod([gh, groupElement]);
+    let groupElement = convert.ecElementFromHex(hex, group)
+    let gh = group.getg()
+    let elemPPGroup = new PPGroup<ECqPGroup, ECqPGroupElement>([group, group])
+    return elemPPGroup.prod([gh, groupElement])
   },
   skToHex(sk: PrivateKey): Hex {
     return sk.value.toHexString()
@@ -75,21 +84,21 @@ export const convert = {
     return pk.values[1].value.toHexString()
   },
   pkToHexECqP(pk: PublicKey<ECqPGroup, ECqPGroupElement>): Array<Hex> {
-    let curve = pk.values[0].pGroup.curve;
-    let affinePk = convert.getAffine(curve, pk.values[1].value);
-    let x = hex(affinePk.x);
-    let y = hex(affinePk.y);
-    return [x, y];
+    let curve = pk.values[0].pGroup.curve
+    let affinePk = convert.getAffine(curve, pk.values[1].value)
+    let x = hex(affinePk.x)
+    let y = hex(affinePk.y)
+    return [x, y]
   },
   skFromInt(skInt: LargeInteger, group: PGroup<any, any>) {
     return convert.toFieldElement(skInt, group)
   },
   skFromHex(skHex: Hex, group: PGroup<any, any>): PrivateKey {
     // return convert.skFromInt(new LargeInteger(skHex), group)
-    let  groupOrder = group.getElementOrder();
-    let skInt = new LargeInteger(skHex);
-    let skPfield = new PField(groupOrder);
-    return skPfield.toElement(skInt.toByteArray());
+    let groupOrder = group.getElementOrder()
+    let skInt = new LargeInteger(skHex)
+    let skPfield = new PField(groupOrder)
+    return skPfield.toElement(skInt.toByteArray())
   },
   pkFromInt(pkInt: LargeInteger, group: ModPGroup) {
     let pkModG = convert.toGroupElement(pkInt, group)
@@ -120,14 +129,14 @@ export const convert = {
     curve: EC,
     cipher: Ciphertext<ECqPGroup, ECqPGroupElement>
   ) {
-    let alphaPoint = cipher.values[0].value;
-    let betaPoint = cipher.values[1].value;
-    curve.affine(alphaPoint);
-    curve.affine(betaPoint);
+    let alphaPoint = cipher.values[0].value
+    let betaPoint = cipher.values[1].value
+    curve.affine(alphaPoint)
+    curve.affine(betaPoint)
     return {
-        alpha: [hex(alphaPoint.x), hex(alphaPoint.y)],
-        beta: [hex(betaPoint.x), hex(betaPoint.y)]
-    };
+      alpha: [hex(alphaPoint.x), hex(alphaPoint.y)],
+      beta: [hex(betaPoint.x), hex(betaPoint.y)]
+    }
   },
   deserializeModPCipher(
     group: ModPGroup,
@@ -144,23 +153,23 @@ export const convert = {
   },
   deserializeECqPCipher(
     group: ECqPGroup,
-    cipher: {alpha: Hex[], beta: Hex[]}
+    cipher: { alpha: Hex[]; beta: Hex[] }
   ) {
-    let len = group.modulusByteLength;
-    let gh = group.getg();
-    let alphaLargeIntX = new LargeInteger(cipher['alpha'][0]);
-    let alphaLargeIntY = new LargeInteger(cipher['alpha'][1]);
-    let alphaByteTreeX = new ByteTree(alphaLargeIntX.toByteArray(len));
-    let alphaByteTreeY = new ByteTree(alphaLargeIntY.toByteArray(len));
-    let alphaByteTree = new ByteTree([alphaByteTreeX, alphaByteTreeY]);
-    let alpha = group.toElement(alphaByteTree);
-    let betaLargeIntX = new LargeInteger(cipher['beta'][0]);
-    let betaLargeIntY = new LargeInteger(cipher['beta'][1]);
-    let betaByteTreeX = new ByteTree(betaLargeIntX.toByteArray(len));
-    let betaByteTreeY = new ByteTree(betaLargeIntY.toByteArray(len));
-    let betaByteTree = new ByteTree([betaByteTreeX, betaByteTreeY]);
-    let beta = group.toElement(betaByteTree);
-    let cipherGroup = new PPGroup<ECqPGroup, ECqPGroupElement>([group, group]);
-    return cipherGroup.prod([alpha, beta]);
+    let len = group.modulusByteLength
+    let gh = group.getg()
+    let alphaLargeIntX = new LargeInteger(cipher['alpha'][0])
+    let alphaLargeIntY = new LargeInteger(cipher['alpha'][1])
+    let alphaByteTreeX = new ByteTree(alphaLargeIntX.toByteArray(len))
+    let alphaByteTreeY = new ByteTree(alphaLargeIntY.toByteArray(len))
+    let alphaByteTree = new ByteTree([alphaByteTreeX, alphaByteTreeY])
+    let alpha = group.toElement(alphaByteTree)
+    let betaLargeIntX = new LargeInteger(cipher['beta'][0])
+    let betaLargeIntY = new LargeInteger(cipher['beta'][1])
+    let betaByteTreeX = new ByteTree(betaLargeIntX.toByteArray(len))
+    let betaByteTreeY = new ByteTree(betaLargeIntY.toByteArray(len))
+    let betaByteTree = new ByteTree([betaByteTreeX, betaByteTreeY])
+    let beta = group.toElement(betaByteTree)
+    let cipherGroup = new PPGroup<ECqPGroup, ECqPGroupElement>([group, group])
+    return cipherGroup.prod([alpha, beta])
   }
 }
