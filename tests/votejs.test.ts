@@ -1,6 +1,6 @@
 import "jest";
 import {LargeInteger, ECqPGroup, ModPGroup} from "verificatum/arithm";
-import { arithm, convert } from "votejs/util";
+import { arithm, convert, random } from "votejs/util";
 import { GammaEncoder } from "votejs/encoders/gamma";
 import { ZEUS_PARAMS } from "./common";
 import {VerificatumModPCrypto, ModParams, VerificatumECqPCrypto} from "votejs/systems/verif";
@@ -161,5 +161,14 @@ describe("sha256", () => {
         let hash1 = sha256(["a", "b", "c"]);
         expect(hash1).toEqual("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
         expect(sha256(["abc"])).toEqual(hash1);
+    })
+})
+
+describe("random source dummy test", () => {
+    it("returns a random LargeInteger", () => {
+        let { modulus, order, generator } = ZEUS_PARAMS;
+        let group = new ModPGroup(modulus, order, generator, 1)
+        let r = random.getRandomInt(LargeInteger.ONE, group.getElementOrder())
+        expect(true).toBeTruthy();
     })
 })

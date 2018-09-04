@@ -14,6 +14,7 @@ import { Hex } from 'verificatum/types'
 import { ByteTree } from 'verificatum/eio'
 import { EC, ECP } from 'verificatum/arithm/ec'
 import { hex } from '../../vendor/verificatum/arithm/sli/index'
+import { RandomDevice, SHA256PRG } from 'verificatum/crypto'
 
 export function getGroupParams(group: ModPGroup) {
   return {
@@ -41,6 +42,21 @@ export const arithm = {
   },
   toNumber(num: LargeInteger): number {
     return parseInt(num.toHexString(), 16)
+  }
+}
+
+export const random = {
+  // https://github.com/grnet/zeus/blob/master/zeus/core.py#L2206
+  getRandomInt(minimum: LargeInteger, ceiling: LargeInteger): LargeInteger {
+    // initialize Random Source
+    let randomSource = new RandomDevice()
+    let seed = randomSource.getBytes(SHA256PRG.seedLength)
+    let source = new SHA256PRG()
+    source.setSeed(seed)
+    // get bit length
+    let top = ceiling.sub(minimum)
+    let bitLength = top.bitLength()
+    return new LargeInteger(bitLength, source)
   }
 }
 

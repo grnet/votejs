@@ -23,8 +23,8 @@ export class LargeInteger {
     mul(other:LargeInteger): LargeInteger
     sub(other:LargeInteger): LargeInteger
     add(other:LargeInteger): LargeInteger
-    modPow(exponent:LargeInteger, modulus:LargeInteger, naive: boolean): LargeInteger
-    modPow(exponent:LargeInteger, modulus:LargeInteger): LargeInteger
+    modPow(exponent:LargeInteger, modulus:LargeInteger, naive?: boolean): LargeInteger
+    mod(modulus: LargeInteger): LargeInteger
     square(): LargeInteger
     divQR(divisor:LargeInteger): [LargeInteger, LargeInteger]
     toByteArray(byteSize?: number): number[]
