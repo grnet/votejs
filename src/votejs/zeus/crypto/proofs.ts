@@ -4,20 +4,20 @@ import { getGroupParams, arithm, random } from 'votejs/util'
 import { sha256 } from 'votejs/hash'
 
 // https://github.com/grnet/zeus/blob/master/zeus/core.py#L2268
-function numbersHash(numbers: LargeInteger[]): string {
-  // FIXME: we need numbers not hex
-  let strNumbers = Array.from(numbers, x => x.toHexString())
+export function numbersHash(numbers: LargeInteger[]): string {
+  let strNumbers = Array.from(numbers, x => x.toHexString() + ':')
   return sha256(strNumbers)
 }
 
 // https://github.com/grnet/zeus/blob/master/zeus/core.py#L2177
-// FIXME
-function strbinToInt(str: string) {
+export function strbinToInt(str: string): LargeInteger {
   let s = LargeInteger.ZERO
   let base = LargeInteger.ONE
   for (let i = 0; i < str.length; i++) {
-    s = s.add(new LargeInteger('' + str.charCodeAt(i))).mul(base)
-    base = base.mul(new LargeInteger('256'))
+    let c = str.charCodeAt(i)
+    let cLI = arithm.toLargeInteger(c)
+    s = cLI.mul(base).add(s)
+    base = base.mul(arithm.toLargeInteger(256))
   }
   return s
 }

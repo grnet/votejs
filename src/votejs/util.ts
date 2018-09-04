@@ -47,16 +47,23 @@ export const arithm = {
 
 export const random = {
   // https://github.com/grnet/zeus/blob/master/zeus/core.py#L2206
-  getRandomInt(minimum: LargeInteger, ceiling: LargeInteger): LargeInteger {
-    // initialize Random Source
-    let randomSource = new RandomDevice()
-    let seed = randomSource.getBytes(SHA256PRG.seedLength)
-    let source = new SHA256PRG()
-    source.setSeed(seed)
+  getRandomInt(
+    minimum: LargeInteger,
+    ceiling: LargeInteger,
+    source?: RandomDevice
+  ): LargeInteger {
+    if (!source) {
+      // initialize Random Source
+      let randomSource = new RandomDevice()
+      let seed = randomSource.getBytes(SHA256PRG.seedLength)
+      source = new SHA256PRG()
+      source.setSeed(seed)
+    }
     // get bit length
     let top = ceiling.sub(minimum)
     let bitLength = top.bitLength()
-    return new LargeInteger(bitLength, source)
+    let r = new LargeInteger(bitLength, source)
+    return r.add(minimum)
   }
 }
 
