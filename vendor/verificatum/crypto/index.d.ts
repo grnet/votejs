@@ -14,7 +14,7 @@ export class SHA256PRG extends RandomDevice {
 }
 export interface CryptoSystem {}
 
-export class ElGamal<G extends PGroup<G, E>, V, E extends PGroupElement<G, V>> implements CryptoSystem  {
+export class ElGamal<G extends PGroup<G, E, V>, V, E extends PGroupElement<G, V>> implements CryptoSystem  {
     constructor(standard:boolean, group: G, source:RandomSource, dist:number)
     gen(): KeyPair<G, E>
     encrypt(publicKey: PPGroupElement<G, E>, message: E, random: PFieldElement): Ciphertext<G, E>

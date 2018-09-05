@@ -24,11 +24,12 @@ export class LargeInteger {
     sub(other:LargeInteger): LargeInteger
     add(other:LargeInteger): LargeInteger
     modPow(exponent:LargeInteger, modulus:LargeInteger, naive?: boolean): LargeInteger
+    // modPow(exponent:LargeInteger, modulus:LargeInteger): LargeInteger
     mod(modulus: LargeInteger): LargeInteger
     square(): LargeInteger
     divQR(divisor:LargeInteger): [LargeInteger, LargeInteger]
     toByteArray(byteSize?: number): number[]
-    legendre(modulus:LargeInteger): number
+    legendre(modulus:LargeInteger): number 
 }
 
 export interface GroupElement<T> {
@@ -38,14 +39,14 @@ export interface GroupElement<T> {
 }
 
 
-declare class PGroup<G, E> {
+declare class PGroup<G, E, V> {
     modulusByteLength: number
-    modulus: LargeInteger
+    modulus: LargeInteger // FIXME move modulus to ModPGroup
     constructor(pRing: PRing)
     pRing: PField
     randomElement(source:RandomSource, dist:number): E
     getElementOrder(): LargeInteger
-    getg(): LargeInteger
+    getg(): PGroupElement<G, V>
     toElement(byteTree: ByteTree): E
     encode(bytes:ByteArray, index:number, length: number): E
 }
@@ -65,15 +66,15 @@ export class PRingElement<R> {
     value: LargeInteger
 }
 
-export class PPGroup<G, E> extends PGroup<G, E> {
-    constructor(value: PGroup<G, E>[]|PGroup<G, E>, width?: number)
+export class PPGroup<G, E, V> extends PGroup<G, E, V> {
+    constructor(value: PGroup<G, E, V>[]|PGroup<G, E, V>, width?: number)
     prod(value: any): PPGroupElement<G, E>
 }
 export class PPGroupElement<G, E> extends PGroupElement<G, E> {
     values: [E, E]
 }
 
-export class ECqPGroup extends PGroup<ECqPGroup, ECqPGroupElement> {
+export class ECqPGroup extends PGroup<ECqPGroup, ECqPGroupElement, ECP> {
     constructor(modulus: string|LargeInteger, a?: LargeInteger, b?: LargeInteger,
                 gx?: LargeInteger, gy?: LargeInteger, n?: LargeInteger)
     curve: EC
@@ -82,7 +83,7 @@ export class ECqPGroupElement extends PGroupElement<ECqPGroup, ECP> {
     constructor(pGroup: ECqPGroup, x: ECP|LargeInteger, y?: LargeInteger, z?: LargeInteger)
 }
 
-export class ModPGroup extends PGroup<ModPGroup, ModPGroupElement> {
+export class ModPGroup extends PGroup<ModPGroup, ModPGroupElement, LargeInteger> {
     constructor(modulus:LargeInteger, order:LargeInteger, group:LargeInteger, encoding:number)
 }
 export class ModPGroupElement extends PPGroupElement<ModPGroup, LargeInteger> {}

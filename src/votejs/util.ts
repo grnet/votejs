@@ -20,7 +20,7 @@ export function getGroupParams(group: ModPGroup) {
   return {
     order: group.getElementOrder(),
     modulus: group.modulus,
-    generator: group.getg()
+    generator: group.getg().value
   }
 }
 
@@ -79,7 +79,7 @@ export const convert = {
     let skPfield = new PField(group.getElementOrder())
     return skPfield.toElement(n.toByteArray(257))
   },
-  elementFromHex(hex: Hex, group: PGroup<any, any>) {
+  elementFromHex(hex: Hex, group: PGroup<any, any, any>) {
     return convert.toGroupElement(new LargeInteger(hex), group)
   },
   ecElementFromHex(hex: Array<Hex>, group: ECqPGroup): ECqPGroupElement {
@@ -97,7 +97,10 @@ export const convert = {
   ): PPGroupElement<ECqPGroup, ECqPGroupElement> {
     let groupElement = convert.ecElementFromHex(hex, group)
     let gh = group.getg()
-    let elemPPGroup = new PPGroup<ECqPGroup, ECqPGroupElement>([group, group])
+    let elemPPGroup = new PPGroup<ECqPGroup, ECqPGroupElement, ECP>([
+      group,
+      group
+    ])
     return elemPPGroup.prod([gh, groupElement])
   },
   skToHex(sk: PrivateKey): Hex {
@@ -113,10 +116,10 @@ export const convert = {
     let y = hex(affinePk.y)
     return [x, y]
   },
-  skFromInt(skInt: LargeInteger, group: PGroup<any, any>) {
+  skFromInt(skInt: LargeInteger, group: PGroup<any, any, any>) {
     return convert.toFieldElement(skInt, group)
   },
-  skFromHex(skHex: Hex, group: PGroup<any, any>): PrivateKey {
+  skFromHex(skHex: Hex, group: PGroup<any, any, any>): PrivateKey {
     // return convert.skFromInt(new LargeInteger(skHex), group)
     let groupOrder = group.getElementOrder()
     let skInt = new LargeInteger(skHex)
@@ -126,7 +129,10 @@ export const convert = {
   pkFromInt(pkInt: LargeInteger, group: ModPGroup) {
     let pkModG = convert.toGroupElement(pkInt, group)
     let g = group.getg()
-    let pkGroup = new PPGroup<ModPGroup, ModPGroupElement>([group, group])
+    let pkGroup = new PPGroup<ModPGroup, ModPGroupElement, LargeInteger>([
+      group,
+      group
+    ])
     return pkGroup.prod([g, pkModG])
   },
   pkFromHexModP(
@@ -171,7 +177,10 @@ export const convert = {
     let betaTree = new ByteTree(betaInt.toByteArray(257))
     let alpha = group.toElement(alphaTree)
     let beta = group.toElement(betaTree)
-    let cipherGroup = new PPGroup<ModPGroup, ModPGroupElement>([group, group])
+    let cipherGroup = new PPGroup<ModPGroup, ModPGroupElement, LargeInteger>([
+      group,
+      group
+    ])
     return cipherGroup.prod([alpha, beta])
   },
   deserializeECqPCipher(
@@ -192,7 +201,10 @@ export const convert = {
     let betaByteTreeY = new ByteTree(betaLargeIntY.toByteArray(len))
     let betaByteTree = new ByteTree([betaByteTreeX, betaByteTreeY])
     let beta = group.toElement(betaByteTree)
-    let cipherGroup = new PPGroup<ECqPGroup, ECqPGroupElement>([group, group])
+    let cipherGroup = new PPGroup<ECqPGroup, ECqPGroupElement, ECP>([
+      group,
+      group
+    ])
     return cipherGroup.prod([alpha, beta])
   }
 }

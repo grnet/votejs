@@ -49,7 +49,7 @@ export class DLogProof extends Proof {
     super(challenge, response)
   }
 
-  toArray() {
+  toArray(): LargeInteger[] {
     return [this.commitment, this.challenge, this.response]
   }
 }
@@ -64,7 +64,7 @@ export class DDHTupleProof extends Proof {
     super(challenge, response)
   }
 
-  toArray() {
+  toArray(): LargeInteger[] {
     return [
       this.baseCommitment,
       this.messageCommitment,
@@ -79,10 +79,13 @@ export function proveDLog(
   group: ModPGroup,
   power: LargeInteger,
   dlog: LargeInteger,
-  extra?: LargeInteger[]
+  extra?: LargeInteger[],
+  randomness?: LargeInteger // used only for test purpuses. Do not use it in production!!!!
 ) {
   let { order, generator, modulus } = getGroupParams(group)
-  let randomness = random.getRandomInt(LargeInteger.TWO, order)
+  if (!randomness) {
+    randomness = random.getRandomInt(LargeInteger.TWO, order)
+  }
   let commitment = generator.modPow(randomness, modulus)
   if (!extra) {
     extra = []
