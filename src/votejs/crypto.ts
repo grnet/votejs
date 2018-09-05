@@ -1,4 +1,4 @@
-import { ChoiceEncoder, Scheme, CryptoSystem, Ciphertext } from 'votejs/types'
+import { ChoiceEncoder, Scheme, CryptoSystem } from 'votejs/types'
 import { GammaEncoder } from 'votejs/encoders/gamma'
 import { VerificatumModPCrypto } from 'votejs/systems/verif'
 

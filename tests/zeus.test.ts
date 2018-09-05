@@ -1,9 +1,7 @@
 import 'jest'
 import {
   LargeInteger,
-  ECqPGroup,
   ModPGroup,
-  ModPGroupElement
 } from 'verificatum/arithm'
 import { ElGamal, ModPElGamal } from 'verificatum/crypto'
 import { regressionData as data, randomSource } from './common'

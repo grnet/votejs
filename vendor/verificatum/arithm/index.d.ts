@@ -1,6 +1,5 @@
 import { Hex, ByteArray } from 'verificatum/types'
 import { RandomSource } from 'verificatum/crypto'
-import { EC, ECP } from 'verificatum/arithm/ec'
 import { ByteTree } from '../eio/index'
 
 export class LargeInteger {
@@ -74,26 +73,6 @@ export class PPGroup<G, E, V> extends PGroup<G, E, V> {
 }
 export class PPGroupElement<G, E> extends PGroupElement<G, E> {
   values: [E, E]
-}
-
-export class ECqPGroup extends PGroup<ECqPGroup, ECqPGroupElement, ECP> {
-  constructor(
-    modulus: string | LargeInteger,
-    a?: LargeInteger,
-    b?: LargeInteger,
-    gx?: LargeInteger,
-    gy?: LargeInteger,
-    n?: LargeInteger
-  )
-  curve: EC
-}
-export class ECqPGroupElement extends PGroupElement<ECqPGroup, ECP> {
-  constructor(
-    pGroup: ECqPGroup,
-    x: ECP | LargeInteger,
-    y?: LargeInteger,
-    z?: LargeInteger
-  )
 }
 
 export class ModPGroup extends PGroup<

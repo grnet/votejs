@@ -1,14 +1,12 @@
 import 'jest'
-import { LargeInteger, ECqPGroup, ModPGroup } from 'verificatum/arithm'
+import { LargeInteger, ModPGroup } from 'verificatum/arithm'
 import { arithm, convert, random } from 'votejs/util'
 import { GammaEncoder } from 'votejs/encoders/gamma'
 import { ZEUS_PARAMS } from './common'
 import {
   VerificatumModPCrypto,
-  ModParams,
-  VerificatumECqPCrypto
+  ModParams
 } from 'votejs/systems/verif'
-import { ECP } from 'verificatum/arithm/ec/index'
 import { sha256 } from 'votejs/hash'
 import {
   numbersHash,
@@ -45,33 +43,11 @@ describe('elgamal', () => {
   })
 })
 
-describe('elgamal elliptic curves', () => {
-  it('values should be ECP', () => {
-    let ecGroup = new ECqPGroup('P-224')
-    let vrf = new VerificatumECqPCrypto(ecGroup)
-    let keypair = vrf.generateKeypair()
-    expect(keypair[0].values[0].value).toBeInstanceOf(ECP)
-    expect(keypair[1].value).toBeInstanceOf(LargeInteger)
-  })
-})
-
 describe('votejs encryption decryption test ModPGroup', () => {
   it('message should be equal to decrypted message', () => {
     let { modulus, order, generator } = ZEUS_PARAMS
     let params = new ModParams(modulus, order, generator)
     let vrf = new VerificatumModPCrypto(params)
-    let keypair = vrf.generateKeypair()
-    const m = vrf.group.randomElement(vrf.device, vrf.statDist)
-    const cipher = vrf.encrypt(keypair[0], m)
-    const decryptedM = vrf.decrypt(keypair[1], cipher)
-    expect(decryptedM.equals(m)).toBeTruthy()
-  })
-})
-
-describe('votejs encryption decryption test ECqPGroup', () => {
-  it('message should be equal to decrypted message', () => {
-    let ecGroup = new ECqPGroup('P-224')
-    let vrf = new VerificatumECqPCrypto(ecGroup)
     let keypair = vrf.generateKeypair()
     const m = vrf.group.randomElement(vrf.device, vrf.statDist)
     const cipher = vrf.encrypt(keypair[0], m)
@@ -95,20 +71,6 @@ describe('util convert methods test ModPGroup', () => {
   })
 })
 
-describe('util convert methods test ECqPGroup', () => {
-  it('keys should be equals', () => {
-    let ecGroup = new ECqPGroup('P-224')
-    let vrf = new VerificatumECqPCrypto(ecGroup)
-    let keypair = vrf.generateKeypair()
-    let pkHex = convert.pkToHexECqP(keypair[0])
-    let skHex = convert.skToHex(keypair[1])
-    let pk = convert.pkFromHexECqP(pkHex, vrf.group)
-    let sk = convert.skFromHex(skHex, vrf.group)
-    expect(pk.equals(keypair[0])).toBeTruthy
-    expect(sk).toEqual(keypair[1])
-  })
-})
-
 describe('util cipher serializer -- deserialize test ModPGroup', () => {
   it('ciphers must be equals', () => {
     let { modulus, order, generator } = ZEUS_PARAMS
@@ -117,25 +79,8 @@ describe('util cipher serializer -- deserialize test ModPGroup', () => {
     let keypair = vrf.generateKeypair()
     let m = vrf.group.randomElement(vrf.device, vrf.statDist)
     let cipher = vrf.encrypt(keypair[0], m)
-    let serializedCipher = convert.serializeModPCipher(cipher)
-    let deserializedCipher = convert.deserializeModPCipher(
-      vrf.group,
-      serializedCipher
-    )
-    expect(cipher.equals(deserializedCipher)).toBeTruthy()
-  })
-})
-
-describe('util cipher serializer -- deserialize test ECqPGroup', () => {
-  it('ciphers must be equals', () => {
-    let ecGroup = new ECqPGroup('P-224')
-    let vrf = new VerificatumECqPCrypto(ecGroup)
-    let keypair = vrf.generateKeypair()
-    let m = vrf.group.randomElement(vrf.device, vrf.statDist)
-    let cipher = vrf.encrypt(keypair[0], m)
-    let curve = keypair[0].values[0].pGroup.curve
-    let serializedCipher = convert.serializeECqPCipher(curve, cipher)
-    let deserializedCipher = convert.deserializeECqPCipher(
+    let serializedCipher = convert.serializeCipher(cipher)
+    let deserializedCipher = convert.deserializeCipher(
       vrf.group,
       serializedCipher
     )

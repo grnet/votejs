@@ -1,6 +1,4 @@
 import {
-  ECqPGroup,
-  ECqPGroupElement,
   LargeInteger,
   ModPGroup,
   ModPGroupElement,
@@ -12,7 +10,6 @@ import {
 import { PrivateKey, PublicKey, Ciphertext } from 'votejs/types'
 import { Hex } from 'verificatum/types'
 import { ByteTree } from 'verificatum/eio'
-import { EC, ECP } from 'verificatum/arithm/ec'
 import { hex } from '../../vendor/verificatum/arithm/sli/index'
 import { RandomDevice, SHA256PRG } from 'verificatum/crypto'
 import { bytes_to_hex } from 'asmcrypto.js'
@@ -72,10 +69,6 @@ export const random = {
 }
 
 export const convert = {
-  getAffine(curve: EC, point: ECP) {
-    curve.affine(point)
-    return point
-  },
   toGroupElement(n: LargeInteger, group: ModPGroup) {
     return group.toElement(new ByteTree(n.toByteArray(257)))
   },
@@ -86,39 +79,11 @@ export const convert = {
   elementFromHex(hex: Hex, group: PGroup<any, any, any>) {
     return convert.toGroupElement(new LargeInteger(hex), group)
   },
-  ecElementFromHex(hex: Array<Hex>, group: ECqPGroup): ECqPGroupElement {
-    let xLargeInt = new LargeInteger(hex[0])
-    let yLargeInt = new LargeInteger(hex[1])
-    let len = group.modulusByteLength
-    let xByteTree = new ByteTree(xLargeInt.toByteArray(len))
-    let yByteTree = new ByteTree(yLargeInt.toByteArray(len))
-    let elemByteTree = new ByteTree([xByteTree, yByteTree])
-    return group.toElement(elemByteTree)
-  },
-  ecPPElementFromHex(
-    hex: Array<Hex>,
-    group: ECqPGroup
-  ): PPGroupElement<ECqPGroup, ECqPGroupElement> {
-    let groupElement = convert.ecElementFromHex(hex, group)
-    let gh = group.getg()
-    let elemPPGroup = new PPGroup<ECqPGroup, ECqPGroupElement, ECP>([
-      group,
-      group
-    ])
-    return elemPPGroup.prod([gh, groupElement])
-  },
   skToHex(sk: PrivateKey): Hex {
     return sk.value.toHexString()
   },
   pkToHexModP(pk: PublicKey<ModPGroup, ModPGroupElement>): Hex {
     return pk.values[1].value.toHexString()
-  },
-  pkToHexECqP(pk: PublicKey<ECqPGroup, ECqPGroupElement>): Array<Hex> {
-    let curve = pk.values[0].pGroup.curve
-    let affinePk = convert.getAffine(curve, pk.values[1].value)
-    let x = hex(affinePk.x)
-    let y = hex(affinePk.y)
-    return [x, y]
   },
   skFromInt(skInt: LargeInteger, group: PGroup<any, any, any>) {
     return convert.toFieldElement(skInt, group)
@@ -145,36 +110,13 @@ export const convert = {
   ): PublicKey<ModPGroup, ModPGroupElement> {
     return convert.pkFromInt(new LargeInteger(pkHex), group)
   },
-  pkFromHexECqP(
-    pkHex: Array<Hex>,
-    group: ECqPGroup
-  ): PublicKey<ECqPGroup, ECqPGroupElement> {
-    return convert.ecPPElementFromHex(pkHex, group)
-  },
-  serializeModPCipher(cipher: Ciphertext<ModPGroup, ModPGroupElement>) {
+  serializeCipher(cipher: Ciphertext<ModPGroup, ModPGroupElement>) {
     return {
       alpha: cipher.values[0].value.toHexString(),
       beta: cipher.values[1].value.toHexString()
     }
   },
-  // TODO maybe get curve from ciphertext
-  serializeECqPCipher(
-    curve: EC,
-    cipher: Ciphertext<ECqPGroup, ECqPGroupElement>
-  ) {
-    let alphaPoint = cipher.values[0].value
-    let betaPoint = cipher.values[1].value
-    curve.affine(alphaPoint)
-    curve.affine(betaPoint)
-    return {
-      alpha: [hex(alphaPoint.x), hex(alphaPoint.y)],
-      beta: [hex(betaPoint.x), hex(betaPoint.y)]
-    }
-  },
-  deserializeModPCipher(
-    group: ModPGroup,
-    cipher: { alpha: string; beta: string }
-  ) {
+  deserializeCipher(group: ModPGroup, cipher: { alpha: string; beta: string }) {
     let alphaInt = new LargeInteger(cipher['alpha'])
     let betaInt = new LargeInteger(cipher['beta'])
     let alphaTree = new ByteTree(alphaInt.toByteArray(257))
@@ -182,30 +124,6 @@ export const convert = {
     let alpha = group.toElement(alphaTree)
     let beta = group.toElement(betaTree)
     let cipherGroup = new PPGroup<ModPGroup, ModPGroupElement, LargeInteger>([
-      group,
-      group
-    ])
-    return cipherGroup.prod([alpha, beta])
-  },
-  deserializeECqPCipher(
-    group: ECqPGroup,
-    cipher: { alpha: Hex[]; beta: Hex[] }
-  ) {
-    let len = group.modulusByteLength
-    let gh = group.getg()
-    let alphaLargeIntX = new LargeInteger(cipher['alpha'][0])
-    let alphaLargeIntY = new LargeInteger(cipher['alpha'][1])
-    let alphaByteTreeX = new ByteTree(alphaLargeIntX.toByteArray(len))
-    let alphaByteTreeY = new ByteTree(alphaLargeIntY.toByteArray(len))
-    let alphaByteTree = new ByteTree([alphaByteTreeX, alphaByteTreeY])
-    let alpha = group.toElement(alphaByteTree)
-    let betaLargeIntX = new LargeInteger(cipher['beta'][0])
-    let betaLargeIntY = new LargeInteger(cipher['beta'][1])
-    let betaByteTreeX = new ByteTree(betaLargeIntX.toByteArray(len))
-    let betaByteTreeY = new ByteTree(betaLargeIntY.toByteArray(len))
-    let betaByteTree = new ByteTree([betaByteTreeX, betaByteTreeY])
-    let beta = group.toElement(betaByteTree)
-    let cipherGroup = new PPGroup<ECqPGroup, ECqPGroupElement, ECP>([
       group,
       group
     ])
