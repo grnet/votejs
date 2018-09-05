@@ -15,6 +15,7 @@ import { ByteTree } from 'verificatum/eio'
 import { EC, ECP } from 'verificatum/arithm/ec'
 import { hex } from '../../vendor/verificatum/arithm/sli/index'
 import { RandomDevice, SHA256PRG } from 'verificatum/crypto'
+import { bytes_to_hex } from 'asmcrypto.js';
 
 export function getGroupParams(group: ModPGroup) {
   return {
@@ -42,6 +43,9 @@ export const arithm = {
   },
   toNumber(num: LargeInteger): number {
     return parseInt(num.toHexString(), 16)
+  },
+  toHex(num: LargeInteger): string {
+    return num.toHexString().replace(/^0+/, '')
   }
 }
 

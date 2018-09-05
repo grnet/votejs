@@ -5,7 +5,7 @@ import { sha256 } from 'votejs/hash'
 
 // https://github.com/grnet/zeus/blob/master/zeus/core.py#L2268
 export function numbersHash(numbers: LargeInteger[]): string {
-  let strNumbers = Array.from(numbers, x => x.toHexString() + ':')
+  let strNumbers = Array.from(numbers, x => arithm.toHex(x) + ':')
   return sha256(strNumbers)
 }
 
@@ -80,7 +80,7 @@ export function proveDLog(
   power: LargeInteger,
   dlog: LargeInteger,
   extra?: LargeInteger[],
-  randomness?: LargeInteger // used only for test purpuses. Do not use it in production!!!!
+  randomness?: LargeInteger // used only for test purposes. Do not use it in production!!!!
 ) {
   let { order, generator, modulus } = getGroupParams(group)
   if (!randomness) {
@@ -106,10 +106,13 @@ export function proveDDHTuple(
   message: LargeInteger,
   basePower: LargeInteger,
   messagePower: LargeInteger,
-  exponent: LargeInteger
+  exponent: LargeInteger,
+  randomness?: LargeInteger // used only for test purposes. Do not use it in production!!!!
 ) {
   let { order, generator, modulus } = getGroupParams(group)
-  let randomness = random.getRandomInt(LargeInteger.TWO, order)
+  if (!randomness) {
+    randomness = random.getRandomInt(LargeInteger.TWO, order)
+  }
   let baseCommitment = generator.modPow(randomness, modulus)
   let messageCommitment = message.modPow(randomness, modulus)
 
