@@ -15,7 +15,7 @@ import { ByteTree } from 'verificatum/eio'
 import { EC, ECP } from 'verificatum/arithm/ec'
 import { hex } from '../../vendor/verificatum/arithm/sli/index'
 import { RandomDevice, SHA256PRG } from 'verificatum/crypto'
-import { bytes_to_hex } from 'asmcrypto.js';
+import { bytes_to_hex } from 'asmcrypto.js'
 
 export function getGroupParams(group: ModPGroup) {
   return {

@@ -1,17 +1,19 @@
 import { CryptoSystem, Ciphertext, PublicKey, PrivateKey } from 'votejs/types'
 import { KeyPair } from 'votejs/crypto'
 import {
-    ModPGroup,
-    LargeInteger,
-    PGroupElement,
-    PFieldElement,
-    PPGroup,
-    PPGroupElement,
-    ModPGroupElement, ECqPGroup, ECqPGroupElement
+  ModPGroup,
+  LargeInteger,
+  PGroupElement,
+  PFieldElement,
+  PPGroup,
+  PPGroupElement,
+  ModPGroupElement,
+  ECqPGroup,
+  ECqPGroupElement
 } from 'verificatum/arithm'
 import { SHA256PRG, ElGamal, RandomDevice } from 'verificatum/crypto'
 import { Hex } from 'verificatum/types'
-import {ECP} from 'verificatum/arithm/ec';
+import { ECP } from 'verificatum/arithm/ec'
 
 class ElGamalKeyPair implements KeyPair {}
 
@@ -25,27 +27,27 @@ export class ModParams {
 
 export class VerificatumModPCrypto
   implements CryptoSystem<ModPGroup, ModPGroupElement> {
-  params: ModParams;
-  group: ModPGroup;
-  elgamal: ElGamal<ModPGroup, LargeInteger, ModPGroupElement>;
-  source: SHA256PRG;
-  statDist: number;
-  device: RandomDevice;
+  params: ModParams
+  group: ModPGroup
+  elgamal: ElGamal<ModPGroup, LargeInteger, ModPGroupElement>
+  source: SHA256PRG
+  statDist: number
+  device: RandomDevice
 
   constructor(params: ModParams) {
-    this.params = params;
+    this.params = params
     this.group = new ModPGroup(
       params.modulus,
       params.order,
       params.generator,
       1
     )
-    this.statDist = 50;
-    this.device = new RandomDevice();  // random source
-    let seed = this.device.getBytes(SHA256PRG.seedLength);
-    this.source = new SHA256PRG(); // ran
-    this.source.setSeed(seed);
-    this.elgamal = new ElGamal(true, this.group, this.source, 1);
+    this.statDist = 50
+    this.device = new RandomDevice() // random source
+    let seed = this.device.getBytes(SHA256PRG.seedLength)
+    this.source = new SHA256PRG() // ran
+    this.source.setSeed(seed)
+    this.elgamal = new ElGamal(true, this.group, this.source, 1)
   }
 
   prove(cipher: Ciphertext<ModPGroup, ModPGroupElement>, random: Hex) {
@@ -60,50 +62,62 @@ export class VerificatumModPCrypto
     pk: PublicKey<ModPGroup, ModPGroupElement>,
     message: ModPGroupElement
   ): Ciphertext<ModPGroup, ModPGroupElement> {
-    const randomElement = this.group.pRing.randomElement(this.device, this.statDist);
-    return this.elgamal.encrypt(pk, message, randomElement);
+    const randomElement = this.group.pRing.randomElement(
+      this.device,
+      this.statDist
+    )
+    return this.elgamal.encrypt(pk, message, randomElement)
   }
 
-  decrypt(sk: PrivateKey, cipher: Ciphertext<ModPGroup, ModPGroupElement>): ModPGroupElement {
-    return this.elgamal.decrypt(sk, cipher);
+  decrypt(
+    sk: PrivateKey,
+    cipher: Ciphertext<ModPGroup, ModPGroupElement>
+  ): ModPGroupElement {
+    return this.elgamal.decrypt(sk, cipher)
   }
 }
 
 export class VerificatumECqPCrypto
-    implements CryptoSystem<ECqPGroup, ECqPGroupElement> {
-    group: ECqPGroup;
-    elgamal: ElGamal<ECqPGroup, ECP, ECqPGroupElement>;
-    source: SHA256PRG;
-    statDist: number;
-    device: RandomDevice;
+  implements CryptoSystem<ECqPGroup, ECqPGroupElement> {
+  group: ECqPGroup
+  elgamal: ElGamal<ECqPGroup, ECP, ECqPGroupElement>
+  source: SHA256PRG
+  statDist: number
+  device: RandomDevice
 
-    constructor(group: ECqPGroup) {
-        this.group = group;
-        this.statDist = 50;
-        this.device = new RandomDevice();
-        let seed = this.device.getBytes(SHA256PRG.seedLength);
-        this.source = new SHA256PRG();
-        this.source.setSeed(seed);
-        this.elgamal = new ElGamal(true, this.group, this.source, 1);
-    }
+  constructor(group: ECqPGroup) {
+    this.group = group
+    this.statDist = 50
+    this.device = new RandomDevice()
+    let seed = this.device.getBytes(SHA256PRG.seedLength)
+    this.source = new SHA256PRG()
+    this.source.setSeed(seed)
+    this.elgamal = new ElGamal(true, this.group, this.source, 1)
+  }
 
-    prove(cipher: Ciphertext<ECqPGroup, ECqPGroupElement>, random: Hex) {
-        return true
-    }
+  prove(cipher: Ciphertext<ECqPGroup, ECqPGroupElement>, random: Hex) {
+    return true
+  }
 
-    generateKeypair() {
-        return this.elgamal.gen()
-    }
+  generateKeypair() {
+    return this.elgamal.gen()
+  }
 
-    encrypt(
-        pk: PublicKey<ECqPGroup, ECqPGroupElement>,
-        message: ECqPGroupElement
-    ): Ciphertext<ECqPGroup, ECqPGroupElement> {
-        const randomElement = this.group.pRing.randomElement(this.device, this.statDist);
-        return this.elgamal.encrypt(pk, message, randomElement);
-    }
+  encrypt(
+    pk: PublicKey<ECqPGroup, ECqPGroupElement>,
+    message: ECqPGroupElement
+  ): Ciphertext<ECqPGroup, ECqPGroupElement> {
+    const randomElement = this.group.pRing.randomElement(
+      this.device,
+      this.statDist
+    )
+    return this.elgamal.encrypt(pk, message, randomElement)
+  }
 
-    decrypt(sk: PrivateKey, cipher: Ciphertext<ECqPGroup, ECqPGroupElement>): ECqPGroupElement {
-        return this.elgamal.decrypt(sk, cipher);
-    }
+  decrypt(
+    sk: PrivateKey,
+    cipher: Ciphertext<ECqPGroup, ECqPGroupElement>
+  ): ECqPGroupElement {
+    return this.elgamal.decrypt(sk, cipher)
+  }
 }
