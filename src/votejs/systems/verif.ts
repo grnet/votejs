@@ -16,21 +16,14 @@ export class ModParams {
 
 export class VerificatumModPCrypto
   implements CryptoSystem<ModPGroup, ModPGroupElement> {
-  params: ModParams
   group: ModPGroup
   elgamal: ElGamal<ModPGroup, LargeInteger, ModPGroupElement>
   source: SHA256PRG
   statDist: number
   device: RandomDevice
 
-  constructor(params: ModParams) {
-    this.params = params
-    this.group = new ModPGroup(
-      params.modulus,
-      params.order,
-      params.generator,
-      1
-    )
+  constructor(group: ModPGroup) {
+    this.group = group
     this.statDist = 50
     this.device = new RandomDevice() // random source
     let seed = this.device.getBytes(SHA256PRG.seedLength)

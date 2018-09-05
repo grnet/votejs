@@ -1,12 +1,8 @@
 import 'jest'
-import { LargeInteger, ModPGroup } from 'verificatum/arithm'
+import { LargeInteger } from 'verificatum/arithm'
 import { arithm, convert, random } from 'votejs/util'
-import { GammaEncoder } from 'votejs/encoders/gamma'
-import { ZEUS_PARAMS } from './common'
-import {
-  VerificatumModPCrypto,
-  ModParams
-} from 'votejs/systems/verif'
+import { ZEUS_GROUP } from './common'
+import { VerificatumModPCrypto, ModParams } from 'votejs/systems/verif'
 import { sha256 } from 'votejs/hash'
 import {
   numbersHash,
@@ -34,9 +30,7 @@ describe('utils tests', () => {
 
 describe('elgamal', () => {
   it('values should be integers', () => {
-    let { modulus, order, generator } = ZEUS_PARAMS
-    let params = new ModParams(modulus, order, generator)
-    let vrf = new VerificatumModPCrypto(params)
+    let vrf = new VerificatumModPCrypto(ZEUS_GROUP)
     let keypair = vrf.generateKeypair()
     expect(keypair[0].values[0].value).toBeInstanceOf(LargeInteger)
     expect(keypair[1].value).toBeInstanceOf(LargeInteger)
@@ -45,9 +39,7 @@ describe('elgamal', () => {
 
 describe('votejs encryption decryption test ModPGroup', () => {
   it('message should be equal to decrypted message', () => {
-    let { modulus, order, generator } = ZEUS_PARAMS
-    let params = new ModParams(modulus, order, generator)
-    let vrf = new VerificatumModPCrypto(params)
+    let vrf = new VerificatumModPCrypto(ZEUS_GROUP)
     let keypair = vrf.generateKeypair()
     const m = vrf.group.randomElement(vrf.device, vrf.statDist)
     const cipher = vrf.encrypt(keypair[0], m)
@@ -58,9 +50,7 @@ describe('votejs encryption decryption test ModPGroup', () => {
 
 describe('util convert methods test ModPGroup', () => {
   it('keys should be equals', () => {
-    let { modulus, order, generator } = ZEUS_PARAMS
-    let params = new ModParams(modulus, order, generator)
-    let vrf = new VerificatumModPCrypto(params)
+    let vrf = new VerificatumModPCrypto(ZEUS_GROUP)
     let keypair = vrf.generateKeypair()
     let pkHex = convert.pkToHexModP(keypair[0])
     let skHex = convert.skToHex(keypair[1])
@@ -73,9 +63,7 @@ describe('util convert methods test ModPGroup', () => {
 
 describe('util cipher serializer -- deserialize test ModPGroup', () => {
   it('ciphers must be equals', () => {
-    let { modulus, order, generator } = ZEUS_PARAMS
-    let params = new ModParams(modulus, order, generator)
-    let vrf = new VerificatumModPCrypto(params)
+    let vrf = new VerificatumModPCrypto(ZEUS_GROUP)
     let keypair = vrf.generateKeypair()
     let m = vrf.group.randomElement(vrf.device, vrf.statDist)
     let cipher = vrf.encrypt(keypair[0], m)
