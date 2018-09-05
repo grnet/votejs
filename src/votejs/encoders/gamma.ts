@@ -118,21 +118,21 @@ function get_offsets(n: LargeInteger): Array<LargeInteger> {
 /**
  * Return the index where to insert item x in list a, assuming a is sorted.
  * https://github.com/python/cpython/blob/2.7/Lib/bisect.py#L24
- *  
- * @param a 
- * @param x 
+ *
+ * @param a
+ * @param x
  * @param lo
  * @param hi
  */
 function bisect_right(
-  a: Array<LargeInteger>, 
-  x: LargeInteger, 
-  lo=LargeInteger.ONE, 
-  hi=arithm.toLargeInteger(a.length)
+  a: Array<LargeInteger>,
+  x: LargeInteger,
+  lo = LargeInteger.ONE,
+  hi = arithm.toLargeInteger(a.length)
 ): LargeInteger {
   while (arithm.lt(lo, hi)) {
-    let mid = (lo.add(hi))
-    mid = mid.div(LargeInteger.TWO);
+    let mid = lo.add(hi)
+    mid = mid.div(LargeInteger.TWO)
     // TODO: assert arithm.toNumber(mid) < largest js number
     if (arithm.lt(x, a[arithm.toNumber(mid)])) {
       hi = mid
@@ -146,7 +146,7 @@ function bisect_right(
 /**
  * Zeus gamma_encode method.
  * https://github.com/grnet/zeus/blob/master/zeus/core.py#L1498
- * 
+ *
  * @param choices
  * @param nrOptions
  * @returns LargeInteger
@@ -179,27 +179,27 @@ export class GammaEncoder implements ChoiceEncoder {
   /**
    * Zeus gamma_decode.
    * https://github.com/grnet/zeus/blob/master/zeus/core.py#L1498
-   * 
-   * @param sumus 
+   *
+   * @param sumus
    * @returns Choice
    */
   decode(sumus: LargeInteger, nrOptions: number): Choice {
     if (sumus.iszero()) {
-      return [];
+      return []
     }
- 
+
     let nrOptionsLI = arithm.toLargeInteger(nrOptions)
 
     let offsets = get_offsets(nrOptionsLI)
-    let nr_choices = bisect_right(offsets, sumus)
-    let index = arithm.toNumber(nr_choices.sub(LargeInteger.ONE))
+    let nrChoices = bisect_right(offsets, sumus)
+    let index = arithm.toNumber(nrChoices.sub(LargeInteger.ONE))
     sumus = sumus.sub(offsets[index])
 
-    let choices:Choice = [];
+    let choices: Choice = []
 
-    let b = nrOptionsLI.sub(nr_choices)
-    let i = nr_choices
-    
+    let b = nrOptionsLI.sub(nrChoices)
+    let i = nrChoices
+
     while (1) {
       // divmod
       let factorBI = get_factor(b, i)
@@ -208,9 +208,9 @@ export class GammaEncoder implements ChoiceEncoder {
       let choiceN = arithm.toNumber(choice)
       choices.push(choiceN)
       if (arithm.lte(i, LargeInteger.ONE)) {
-        break 
+        break
       }
-      i = i.sub(LargeInteger.ONE) 
+      i = i.sub(LargeInteger.ONE)
     }
     return choices
   }
