@@ -1,5 +1,5 @@
 import { Hex } from 'verificatum/types'
-import {LargeInteger, PPGroupElement, PFieldElement, PGroupElement} from 'verificatum/arithm'
+import { LargeInteger, PPGroupElement, PFieldElement } from 'verificatum/arithm'
 
 export type Choice = Array<number>
 

@@ -4,15 +4,12 @@ import {
   ModPGroupElement,
   PField,
   PGroup,
-  PPGroup,
-  PPGroupElement
+  PPGroup
 } from 'verificatum/arithm'
 import { PrivateKey, PublicKey, Ciphertext } from 'votejs/types'
 import { Hex } from 'verificatum/types'
 import { ByteTree } from 'verificatum/eio'
-import { hex } from '../../vendor/verificatum/arithm/sli/index'
 import { RandomDevice, SHA256PRG } from 'verificatum/crypto'
-import { bytes_to_hex } from 'asmcrypto.js'
 
 export function getGroupParams(group: ModPGroup) {
   return {

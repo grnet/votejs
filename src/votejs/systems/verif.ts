@@ -1,18 +1,10 @@
 import { CryptoSystem, Ciphertext, PublicKey, PrivateKey } from 'votejs/types'
-import { KeyPair } from 'votejs/crypto'
-import {
-  ModPGroup,
-  LargeInteger,
-  PGroupElement,
-  PFieldElement,
-  PPGroup,
-  PPGroupElement,
-  ModPGroupElement
-} from 'verificatum/arithm'
+// import { KeyPair } from 'votejs/crypto'
+import { ModPGroup, LargeInteger, ModPGroupElement } from 'verificatum/arithm'
 import { SHA256PRG, ElGamal, RandomDevice } from 'verificatum/crypto'
 import { Hex } from 'verificatum/types'
 
-class ElGamalKeyPair implements KeyPair {}
+// class ElGamalKeyPair implements KeyPair {}
 
 export class ModParams {
   constructor(
